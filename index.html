@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <link rel="icon" type="image/jpeg" href="slogo.jpg">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steam Oyun Hesap Satışı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Ekstra stiller */
+    .hero-bg {
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e');
+      background-size: cover;
+      background-position: center;
+    }
+    .cart-count {
+      display: none;
+    }
+    .cart-count.active {
+      display: inline-block;
+    }
+    .line-through {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+  <!-- Navbar -->
+  <nav class="bg-gray-800 p-4 sticky top-0 z-10">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="flex space-x-4 items-center">
+        <button id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">İptal</button>
+      </div>
+      <div class="flex space-x-4 items-center">
+        <a href="#home" class="hover:text-blue-400">Ana Sayfa</a>
+        <select id="currency-selector" class="p-2 rounded bg-gray-700 text-white">
+          <option value="TL">TL</option>
+          <option value="USD">USD</option>
+        </select>
+        <input type="text" id="search-bar" placeholder="Oyun ara..." class="p-2 rounded bg-gray-700 text-white">
+        <a href="#products" class="hover:text-blue-400">Hesaplar</a>
+        <a href="#contact" class="hover:text-blue-400">İletişim</a>
+        <a href="#cart" class="hover:text-blue-400 relative">
+          Sepet
+          <span id="cart-count" class="cart-count bg-red-500 text-white rounded-full px-2 py-1 text-xs absolute -top-2 -right-4">0</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero-bg h-96 flex items-center justify-center">
+    <div class="text-center">
+      <h2 class="text-4xl font-bold mb-4">Ucuz Steam Hesapları</h2>
+      <p class="text-lg mb-6">Ucuza Steam hesabı alabilirsiniz</p>
+      <a href="#products" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Hesaplara Göz At</a>
+    </div>
+  </section>
+
+  <!-- Ürünler Section -->
+  <section id="products" class="py-12">
+    <div class="container mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-8">Popüler Oyun Hesapları</h2>
+      <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Ürün kartları JS ile dinamik olarak eklenecek -->
+      </div>
+    </div>
+  </section>
+
+  <!-- İletişim Section -->
+  <section id="contact" class="bg-gray-800 py-12">
+    <div class="container mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-8">Bize Ulaşın</h2>
+      <div class="max-w-lg mx-auto">
+        <form id="contact-form" action="mailto:bugs439292@gmail.com" method="post" enctype="text/plain" class="space-y-4">
+          <input type="text" id="name" name="name" placeholder="Adınız" class="w-full p-2 rounded bg-gray-700 text-white" required>
+          <input type="email" id="email" name="email" placeholder="E-posta" class="w-full p-2 rounded bg-gray-700 text-white" required>
+          <textarea id="message" name="message" placeholder="Mesajınız" class="w-full p-2 rounded bg-gray-700 text-white h-32" required></textarea>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Gönder</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin Menüsü Modal -->
+  <div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg max-w-lg w-full">
+      <h2 class="text-2xl font-bold mb-4">Admin Menüsü - Fiyat Düzenle</h2>
+      <div class="mb-4">
+        <input type="text" id="admin-search" placeholder="Oyun ara..." class="p-2 rounded bg-gray-700 text-white w-full">
+      </div>
+      <div id="admin-product-list" class="space-y-4 max-h-96 overflow-y-auto"></div>
+      <div class="flex justify-end mt-6">
+        <button id="close-admin" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sepet Modal -->
+  <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg max-w-lg w-full">
+      <h2 class="text-2xl font-bold mb-4">Sepetiniz</h2>
+      <div id="cart-items" class="space-y-4"></div>
+      <div id="cart-total" class="mt-4 text-lg font-bold text-right"></div>
+      <div class="flex justify-end mt-6 space-x-4">
+        <button id="close-cart" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Kapat</button>
+        <button id="confirm-order" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Siparişi Onayla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 py-6 text-center">
+    <p>&copy; 2025 SteamShop. Tüm hakları saklıdır.</p>
+  </footer>
+
+  <script>
+    // Döviz kuru (1 USD = 33 TL)
+    const exchangeRate = 33;
+
+    // Mevcut para birimi
+    let currentCurrency = 'TL';
+
+    // Ürünleri localStorage'dan yükle veya varsayılanları kullan
+    function loadProducts() {
+      const savedProducts = localStorage.getItem('products');
+      if (savedProducts) {
+        return JSON.parse(savedProducts);
+      } else {
+        const defaultProducts = [
+          { id: 1, name: "RANDOM HESAP", price: 86, originalPrice: 86 },
+          { id: 2, name: "GTA V Premium Hesap", price: 200, originalPrice: 200 },
+          { id: 3, name: "Cyberpunk 2077 Hesap", price: 250, originalPrice: 250 },
+          { id: 4, name: "Among Us Full Hesap", price: 50, originalPrice: 50 },
+          { id: 5, name: "The Witcher 3 Hesap", price: 180, originalPrice: 180 },
+          { id: 6, name: "Red Dead Redemption 2", price: 300, originalPrice: 300 },
+          { id: 7, name: "FIFA 23 Ultimate Hesap", price: 280, originalPrice: 280 },
+          { id: 8, name: "The Forest Hesap", price: 200, originalPrice: 200 },
+          { id: 9, name: "Baldur's Gate 3 Hesap", price: 300, originalPrice: 300 },
+          { id: 10, name: "Elden Ring Hesap", price: 350, originalPrice: 350 },
+          { id: 11, name: "Dota 2 Hesap", price: 100, originalPrice: 100 },
+          { id: 12, name: "Counter-Strike 2 Hesap", price: 120, originalPrice: 120 },
+          { id: 13, name: "Football Manager 2024 Hesap", price: 250, originalPrice: 250 },
+          { id: 14, name: "Celeste Hesap", price: 80, originalPrice: 80 },
+          { id: 15, name: "Oblivion Remastered Hesap", price: 220, originalPrice: 220 },
+          { id: 16, name: "Kingdom Come Deliverance 2 Hesap", price: 280, originalPrice: 280 },
+          { id: 17, name: "Helldivers 2 Hesap", price: 200, originalPrice: 200 },
+          { id: 18, name: "Vampire Survivors Hesap", price: 40, originalPrice: 40 },
+          { id: 19, name: "Disco Elysium Hesap", price: 150, originalPrice: 150 },
+          { id: 20, name: "Ready or Not Hesap", price: 180, originalPrice: 180 },
+          { id: 21, name: "Dying Light Hesap", price: 160, originalPrice: 160 },
+          { id: 22, name: "Sons of the Forest Hesap", price: 220, originalPrice: 220 },
+          { id: 23, name: "Balatro Hesap", price: 90, originalPrice: 90 },
+          { id: 24, name: "Civilization 6 Hesap", price: 240, originalPrice: 240 },
+          { id: 25, name: "Stardew Valley Hesap", price: 70, originalPrice: 70 },
+          { id: 26, name: "Metaphor: ReFantazio Hesap", price: 320, originalPrice: 320 },
+          { id: 27, name: "Monster Hunter Wilds Hesap", price: 280, originalPrice: 280 },
+          { id: 28, name: "Blue Prince Hesap", price: 110, originalPrice: 110 },
+          { id: 29, name: "Split Fiction Hesap", price: 190, originalPrice: 190 },
+          { id: 30, name: "Dream BBQ Hesap", price: 130, originalPrice: 130 },
+          { id: 31, name: "Citizen Sleeper 2 Hesap", price: 140, originalPrice: 140 }
+        ];
+        saveProducts(defaultProducts);
+        return defaultProducts;
+      }
+    }
+
+    // Ürünleri localStorage'a kaydet
+    function saveProducts(products) {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    let products = loadProducts();
+    let cart = [];
+
+    // Fiyatı mevcut para birimine göre formatla
+    function formatPrice(price) {
+      if (currentCurrency === 'TL') {
+        return price.toFixed(2) + ' TL';
+      } else {
+        return (price / exchangeRate).toFixed(2) + ' $';
+      }
+    }
+
+    // Ürünleri listele
+    function renderProducts(filteredProducts = products) {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = '';
+      filteredProducts.forEach(product => {
+        const cardClass = product.name === "RANDOM HESAP" ? "bg-red-600" : "bg-gray-800";
+        const displayOriginalPrice = product.price < product.originalPrice ? `<span class="line-through">${formatPrice(product.originalPrice)}</span> ` : '';
+        const productCard = `
+          <div class="${cardClass} p-4 rounded-lg">
+            <h3 class="text-xl font-bold mt-4">${product.name}</h3>
+            <p class="text-lg mt-2">
+              ${displayOriginalPrice}
+              ${formatPrice(product.price)}
+            </p>
+            <button onclick="addToCart(${product.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 w-full">Sepete Ekle</button>
+          </div>
+        `;
+        productList.innerHTML += productCard;
+      });
+    }
+
+    // Admin menüsünü render et
+    function renderAdminMenu(filteredProducts = products) {
+      const adminProductList = document.getElementById('admin-product-list');
+      adminProductList.innerHTML = '';
+      filteredProducts.forEach(product => {
+        adminProductList.innerHTML += `
+          <div class="flex flex-col space-y-2 border-b border-gray-600 pb-2">
+            <span class="font-bold">${product.name} - Mevcut Fiyat: ${product.price.toFixed(2)} TL (Orijinal: ${product.originalPrice.toFixed(2)} TL)</span>
+            <div class="flex space-x-2">
+              <input type="number" id="price-${product.id}" value="${product.originalPrice.toFixed(2)}" class="p-2 rounded bg-gray-700 text-white w-24" placeholder="Yeni Fiyat (TL)">
+              <input type="number" id="discount-${product.id}" placeholder="İndirim %" class="p-2 rounded bg-gray-700 text-white w-24">
+              <button onclick="updatePrice(${product.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">Güncelle</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Fiyat veya indirim güncelle
+    function updatePrice(productId) {
+      const newPriceInput = parseFloat(document.getElementById(`price-${productId}`).value);
+      const discountRate = parseFloat(document.getElementById(`discount-${productId}`).value);
+      const product = products.find(p => p.id === productId);
+
+      if (isNaN(newPriceInput) && isNaN(discountRate)) {
+        alert('Lütfen bir fiyat veya indirim oranı girin.');
+        return;
+      }
+
+      if (!isNaN(newPriceInput) && newPriceInput >= 0) {
+        product.originalPrice = newPriceInput;
+        product.price = newPriceInput;
+      }
+
+      if (!isNaN(discountRate) && discountRate >= 0 && discountRate <= 100) {
+        product.price = product.originalPrice * (1 - discountRate / 100);
+      } else if (!isNaN(discountRate)) {
+        alert('Lütfen 0 ile 100 arasında bir indirim oranı girin.');
+        return;
+      }
+
+      saveProducts(products);
+      renderProducts();
+      renderAdminMenu();
+      alert(`${product.name} güncellendi. Yeni fiyat: ${product.price.toFixed(2)} TL (Orijinal: ${product.originalPrice.toFixed(2)} TL)`);
+    }
+
+    // Sepete ekle
+    function addToCart(productId) {
+      const product = products.find(p => p.id === productId);
+      cart.push(product);
+      updateCart();
+    }
+
+    // Sepetten sil
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    // Sepeti güncelle
+    function updateCart() {
+      const cartCount = document.getElementById('cart-count');
+      const cartItems = document.getElementById('cart-items');
+      const cartTotal = document.getElementById('cart-total');
+
+      cartCount.textContent = cart.length;
+      cartCount.classList.toggle('active', cart.length > 0);
+
+      cartItems.innerHTML = '';
+      cart.forEach((item, index) => {
+        cartItems.innerHTML += `
+          <div class="flex justify-between items-center">
+            <span>${item.name}</span>
+            <div class="flex items-center space-x-2">
+              <span>${formatPrice(item.price)}</span>
+              <button onclick="removeFromCart(${index})" class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">Sil</button>
+            </div>
+          </div>
+        `;
+      });
+
+      const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+      cartTotal.textContent = `Toplam: ${formatPrice(totalPrice)}`;
+    }
+
+    // Para birimi değiştir
+    function changeCurrency(currency) {
+      currentCurrency = currency;
+      renderProducts();
+      updateCart();
+    }
+
+    // İptal butonu (şimdilik işlevsiz)
+    document.getElementById('cancel-btn').addEventListener('click', () => {
+      // İptal butonu için işlev eklenebilir
+      alert('İptal işlemi gerçekleştirildi.');
+    });
+
+    // Admin paneli için basit erişim (örneğin, bir kısayol ile)
+    // Not: Admin erişimi için başka bir yöntem eklenebilir (örneğin, gizli bir tuş kombinasyonu)
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.altKey && e.key === 'a') { // Ctrl+Alt+A ile admin paneline erişim
+        const password = prompt('Admin şifresini girin:');
+        if (password === 'admin458') {
+          document.getElementById('admin-modal').classList.remove('hidden');
+          renderAdminMenu();
+        } else {
+          alert('Geçersiz şifre!');
+        }
+      }
+    });
+
+    // Admin menüsünde arama
+    document.getElementById('admin-search').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const filteredProducts = products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm)
+      );
+      renderAdminMenu(filteredProducts);
+    });
+
+    // Admin modalını kapat
+    document.getElementById('close-admin').addEventListener('click', () => {
+      document.getElementById('admin-modal').classList.add('hidden');
+      document.getElementById('admin-search').value = '';
+      renderAdminMenu();
+    });
+
+    // Arama fonksiyonu
+    document.getElementById('search-bar').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const filteredProducts = products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm)
+      );
+      renderProducts(filteredProducts);
+    });
+
+    // Para birimi seçici
+    document.getElementById('currency-selector').addEventListener('change', (e) => {
+      changeCurrency(e.target.value);
+    });
+
+    // Sepet modalını aç/kapat
+    document.querySelector('a[href="#cart"]').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('cart-modal').classList.toggle('hidden');
+    });
+
+    document.getElementById('close-cart').addEventListener('click', () => {
+      document.getElementById('cart-modal').classList.add('hidden');
+    });
+
+    // Siparişi onayla
+    document.getElementById('confirm-order').addEventListener('click', () => {
+      if (cart.length > 0) {
+        alert('Gmail ile iletişime geçiniz: bugs439292@gmail.com');
+        cart = [];
+        updateCart();
+        document.getElementById('cart-modal').classList.add('hidden');
+      } else {
+        alert('Sepetiniz boş. Lütfen ürün ekleyin.');
+      }
+    });
+
+    // İletişim formu gönderimi
+    document.getElementById('contact-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Mesajınız bugs439292@gmail.com adresine gönderildi!');
+      e.target.reset();
+    });
+
+    // Ürünleri yükle
+    renderProducts();
+  </script>
+</body>
+</html>
